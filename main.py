@@ -37,3 +37,14 @@ async def createTask(db:db_dependency, task:TaskInterface):
     db.add(model)
     db.commit()
     return {"message": "Task created succesfully!", "New Task": task}
+
+@app.put("/Tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def updateTaks(db: db_dependency, task_id:int, task:TaskInterface):
+    model = db.query(ToDosModel).filter(ToDosModel.id == task_id).first()
+    if model is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    for key, value in task.model_dump(exclude_unset=True).items():
+        setattr(model, key, value)
+
+    db.commit()
+        
