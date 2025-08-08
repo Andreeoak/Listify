@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 from Database.Models.ToDosModel import ToDosModel
 from Database.database import engine, Base, getDb
+from Interfaces.TaskInterface import TaskInterface
 import os
 
 """
@@ -29,3 +30,10 @@ async def readTaskById(db:db_dependency, task_id:int):
     if(model is not None):
         return model
     raise HTTPException(status_code=404, detail="Task not found")
+
+@app.post("/Tasks", status_code=status.HTTP_201_CREATED)
+async def createTask(db:db_dependency, task:TaskInterface):
+    model = ToDosModel(**task.model_dump())
+    db.add(model)
+    db.commit()
+    return {"message": "Task created succesfully!", "New Task": task}
