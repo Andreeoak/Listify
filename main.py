@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from typing import Annotated
@@ -15,15 +15,15 @@ app = FastAPI()
 Base.metadata.create_all(bind=engine)
 db_dependency = Annotated[Session, Depends(getDb)]
 
-@app.get("/")
+@app.get("/", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 async def redirect_to_tasks():
     return RedirectResponse(url="/Tasks")
 
-@app.get("/Tasks")
+@app.get("/Tasks", status_code=status.HTTP_200_OK)
 async def readAllEntries(db: db_dependency):
     return db.query(ToDosModel).all()
 
-@app.get("/Tasks/{task_id}")
+@app.get("/Tasks/{task_id}", status_code=status.HTTP_200_OK)
 async def readTaskById(db:db_dependency, task_id:int):
     model =db.query(ToDosModel).filter(ToDosModel.id ==task_id).first()
     if(model is not None):
