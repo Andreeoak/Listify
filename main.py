@@ -5,15 +5,11 @@ from typing import Annotated
 from Database.Models.ToDosModel import ToDosModel
 from Database.database import engine, Base, getDb
 from Interfaces.TaskInterface import TaskInterface
-import os
-
-"""
-print("Engine URL:", engine.url)
-print("Banco usado:", os.path.abspath("todos.db"))
-"""
+from routers import auth
 
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
+app.include_router(auth.router)
 db_dependency = Annotated[Session, Depends(getDb)]
 
 @app.get("/", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
