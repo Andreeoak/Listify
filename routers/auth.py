@@ -1,10 +1,10 @@
-from fastapi import  APIRouter
+from fastapi import  APIRouter, status
 from Interfaces.UserInterface import UserInterface
 from Database.Models.UsersModel import UsersModel
 
 router = APIRouter()
 
-@router.post("/auth/")
+@router.post("/auth/", status_code=status.HTTP_204_NO_CONTENT)
 async def createUser(createUserRequest: UserInterface):
     create_user_model = UsersModel(
         email = createUserRequest.email,
