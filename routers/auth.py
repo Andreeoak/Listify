@@ -1,7 +1,22 @@
 from fastapi import  APIRouter
+from Interfaces.UserInterface import UserInterface
+from Database.Models.UsersModel import UsersModel
 
 router = APIRouter()
 
-@router.get("/auth/")
-async def authUser():
-    return {"message": "User Authenticated"}
+@router.post("/auth/")
+async def createUser(createUserRequest: UserInterface):
+    create_user_model = UsersModel(
+        email = createUserRequest.email,
+        username = createUserRequest.username,
+        first_name = createUserRequest.first_name,
+        last_name= createUserRequest.last_name,
+        role = createUserRequest.role,
+        hashed_password = createUserRequest.password,
+        is_active = True
+    )
+    
+    return{ 
+        "Message": "User created succesfully!",
+        "User":   create_user_model 
+    }
