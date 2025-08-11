@@ -1,10 +1,11 @@
 from fastapi import  APIRouter, status
 from Interfaces.UserInterface import UserInterface
 from Database.Models.UsersModel import UsersModel
+from Utils.encryption import EncryptionContext
 
 router = APIRouter()
 
-@router.post("/auth/", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/auth/")
 async def createUser(createUserRequest: UserInterface):
     create_user_model = UsersModel(
         email = createUserRequest.email,
@@ -12,7 +13,7 @@ async def createUser(createUserRequest: UserInterface):
         first_name = createUserRequest.first_name,
         last_name= createUserRequest.last_name,
         role = createUserRequest.role,
-        hashed_password = createUserRequest.password,
+        hashed_password = EncryptionContext.hashPassword(createUserRequest.password),
         is_active = True
     )
     
