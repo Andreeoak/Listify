@@ -29,6 +29,7 @@ async def createTask(db:db_dependency, task:TaskInterface):
     model = ToDosModel(**task.model_dump())
     db.add(model)
     db.commit()
+    db.refresh(model)
     return {"message": "Task created succesfully!", "New Task": task}
 
 @router.put("/Tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
