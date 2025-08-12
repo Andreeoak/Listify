@@ -5,9 +5,11 @@ from typing import Annotated
 from Database.Models.ToDosModel import ToDosModel
 from Database.database import getDb
 from Interfaces.TaskInterface import TaskInterface
+from Utils.encryption import jwtEncryption
 
 router = APIRouter()
 db_dependency = Annotated[Session, Depends(getDb)]
+user_dependency = Annotated[dict, Depends(jwtEncryption.getCurrentUser)]
 
 @router.get("/", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 async def redirect_to_tasks():
@@ -25,8 +27,10 @@ async def readTaskById(db:db_dependency, task_id:int):
     raise HTTPException(status_code=404, detail="Task not found")
 
 @router.post("/Tasks", status_code=status.HTTP_201_CREATED)
-async def createTask(db:db_dependency, task:TaskInterface):
-    model = ToDosModel(**task.model_dump())
+async def createTask(user:user_dependency, db:db_dependency, task:TaskInterface):
+    if(user is None):
+        raise HTTPException(status_code=401, detail="Authentication Failed")
+    model = ToDosModel(**task.model_dump(), owner_id=user.get("id"))
     db.add(model)
     db.commit()
     db.refresh(model)
