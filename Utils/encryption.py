@@ -22,7 +22,7 @@ class EncryptionContext:
 class jwtEncryption:
     SECRET_KEY = '69905614fb3c9e2b433ae26e9e198660da6d9daedbe8a9e63669aae008db7095'
     ALGORITHM = 'HS256'
-    oauth2_bearer = OAuth2PasswordBearer(tokenUrl="token")
+    oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
     
     @classmethod
     def createAccessToken(cls, username:str, user_id:int, exp: timedelta):

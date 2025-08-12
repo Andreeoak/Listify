@@ -1,4 +1,4 @@
-from fastapi import  APIRouter, Depends, status
+from fastapi import  APIRouter, Depends, status, HTTPException
 from Interfaces.UserInterface import UserInterface
 from Interfaces.TokenInterface import TokenInterface
 from Database.Models.UsersModel import UsersModel
@@ -9,7 +9,10 @@ from typing import Annotated
 from fastapi.security import OAuth2PasswordRequestForm
 from datetime import timedelta
 
-router = APIRouter()
+router = APIRouter(
+    prefix='/auth',
+    tags=['Auth']
+)
 db_dependency = Annotated[Session, Depends(getDb)]
 
 def authenticate_user(username:str, password:str, db:db_dependency):
@@ -21,7 +24,7 @@ def authenticate_user(username:str, password:str, db:db_dependency):
     return user
 
 
-@router.post("/auth/", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def createUser(db:db_dependency, createUserRequest: UserInterface):
     create_user_model = UsersModel(
         email = createUserRequest.email,
@@ -46,6 +49,6 @@ async def loginForAccessToken(
     db: db_dependency):
     user = authenticate_user(form_data.username, form_data.password, db)
     if(not user):
-        return "Failed Authentication"
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not verify credentials")
     token = jwtEncryption.createAccessToken(user.username, user.id, timedelta(minutes=20))
     return {'access_token':token, "token_type": 'bearer'}
