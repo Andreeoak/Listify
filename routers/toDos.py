@@ -43,8 +43,10 @@ async def createTask(user:user_dependency, db:db_dependency, task:TaskInterface)
     return {"message": "Task created succesfully!", "New Task": task}
 
 @router.put("/Tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def updateTask(db: db_dependency, task_id:int, task:TaskInterface):
-    model = db.query(ToDosModel).filter(ToDosModel.id == task_id).first()
+async def updateTask(user:user_dependency, db: db_dependency, task_id:int, task:TaskInterface):
+    if(user is None):
+        raise HTTPException(status_code=401, detail="Authentication Failed")
+    model = db.query(ToDosModel).filter(ToDosModel.id == task_id).filter(ToDosModel.owner_id == user.get("id")).first()
     if model is None:
         raise HTTPException(status_code=404, detail="Task not found")
     for key, value in task.model_dump(exclude_unset=True).items():
@@ -52,8 +54,10 @@ async def updateTask(db: db_dependency, task_id:int, task:TaskInterface):
     db.commit()
     
 @router.delete("/Tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def deleteTask(db: db_dependency, task_id:int):
-    model = db.query(ToDosModel).filter(ToDosModel.id == task_id).first()
+async def deleteTask(user: user_dependency, db: db_dependency, task_id:int):
+    if(user is None):
+        raise HTTPException(status_code=401, detail="Authentication Failed")
+    model = db.query(ToDosModel).filter(ToDosModel.id == task_id).filter(ToDosModel.owner_id == user.get("id")).first()
     if model is None:
         raise HTTPException(status_code=404, detail="Task not found")
     db.query(ToDosModel).filter(ToDosModel.id == task_id).delete()
