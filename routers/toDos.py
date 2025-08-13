@@ -18,12 +18,16 @@ async def redirect_to_tasks():
 
 @router.get("/Tasks", status_code=status.HTTP_200_OK)
 async def readAllEntries(user:user_dependency, db: db_dependency):
+    if(user is None):
+        raise HTTPException(status_code=401, detail="Authentication Failed")
     todos = db.query(ToDosModel).filter(ToDosModel.owner_id == user["id"]).all()
     return jsonable_encoder(todos, exclude={"owner": {"todos"}}) #lets you skip fields that cause recursion => just exclude the deep nesting in serialization.
 
 @router.get("/Tasks/{task_id}", status_code=status.HTTP_200_OK)
-async def readTaskById(db:db_dependency, task_id:int):
-    model =db.query(ToDosModel).filter(ToDosModel.id ==task_id).first()
+async def readTaskById(user:user_dependency, db:db_dependency, task_id:int):
+    if(user is None):
+        raise HTTPException(status_code=401, detail="Authentication Failed")
+    model =db.query(ToDosModel).filter(ToDosModel.id ==task_id).filter(ToDosModel.owner_id == user.get("id")).first()
     if(model is not None):
         return model
     raise HTTPException(status_code=404, detail="Task not found")
