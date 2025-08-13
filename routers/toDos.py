@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from typing import Annotated
@@ -16,8 +17,9 @@ async def redirect_to_tasks():
     return RedirectResponse(url="/Tasks")
 
 @router.get("/Tasks", status_code=status.HTTP_200_OK)
-async def readAllEntries(db: db_dependency):
-    return db.query(ToDosModel).all()
+async def readAllEntries(user:user_dependency, db: db_dependency):
+    todos = db.query(ToDosModel).filter(ToDosModel.owner_id == user["id"]).all()
+    return jsonable_encoder(todos, exclude={"owner": {"todos"}}) #lets you skip fields that cause recursion => just exclude the deep nesting in serialization.
 
 @router.get("/Tasks/{task_id}", status_code=status.HTTP_200_OK)
 async def readTaskById(db:db_dependency, task_id:int):
