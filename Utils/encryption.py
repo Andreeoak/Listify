@@ -25,8 +25,8 @@ class jwtEncryption:
     oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
     
     @classmethod
-    def createAccessToken(cls, username:str, user_id:int, exp: timedelta):
-        encode = {'sub': username, "id": user_id}
+    def createAccessToken(cls, username:str, user_id:int, role:str, exp: timedelta):
+        encode = {'sub': username, "id": user_id, 'role':role}
         expires = datetime.now(timezone.utc) + exp
         encode.update({'exp':expires})
         return jwt.encode(encode, cls.SECRET_KEY, cls.ALGORITHM)
@@ -37,8 +37,9 @@ class jwtEncryption:
             payload = jwt.decode(token, cls.SECRET_KEY, algorithms=[cls.ALGORITHM])
             username:str = payload.get('sub')
             user_id: int = payload.get('id')
+            user_role:str = payload.get('role')
             if username is None or user_id is None:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not verify credentials")
-            return {"username":username, "id":user_id}
+            return {"username":username, "id":user_id, "user_role": user_role}
         except JWSError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not verify credentials")

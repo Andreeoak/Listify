@@ -50,5 +50,5 @@ async def loginForAccessToken(
     user = authenticate_user(form_data.username, form_data.password, db)
     if(not user):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not verify credentials")
-    token = jwtEncryption.createAccessToken(user.username, user.id, timedelta(minutes=20))
+    token = jwtEncryption.createAccessToken(user.username, user.id, user.role, timedelta(minutes=20))
     return {'access_token':token, "token_type": 'bearer'}
