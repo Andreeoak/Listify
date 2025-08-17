@@ -34,7 +34,7 @@ async def changeUserPassword(user:user_dependency, db:db_dependency, user_verifi
     db.add(user_model)
     db.commit()
     
-@router.put("/phone", status_code=status.HTTP_202_ACCEPTED):
+@router.put("/phone", status_code=status.HTTP_202_ACCEPTED)
 async def changeUserPhone(user:user_dependency, db:db_dependency,  newPhoneRequest: PhoneVerification):
     if user is None:
         raise HTTPException(status_code=401, detail='Authentication Failed!')
