@@ -3,7 +3,7 @@ from Database.database import getDb
 from sqlalchemy.orm import Session
 from typing import Annotated
 from Database.Models.UsersModel import UsersModel
-from Interfaces.UserVerificationInterface import UserVerificationInterface as UserVerification
+from Interfaces.UserVerificationInterface import UserPasswordVerificationInterface as PasswordVerification, UserPhoneVerificationInterface as PhoneVerification
 from Utils.encryption import jwtEncryption
 from Utils.encryption import EncryptionContext
 
@@ -23,7 +23,7 @@ async def getUser(user:user_dependency, db:db_dependency):
     return db.query(UsersModel).filter(UsersModel.id == user.get("id")).first()
 
 @router.put("/password", status_code=status.HTTP_204_NO_CONTENT)
-async def changeUserPassword(user:user_dependency, db:db_dependency, user_verification:UserVerification):
+async def changeUserPassword(user:user_dependency, db:db_dependency, user_verification:PasswordVerification):
     if user is None:
         raise HTTPException(status_code=401, detail='Authentication Failed!')
     user_model = db.query(UsersModel).filter(UsersModel.id == user.get('id')).first()
@@ -33,3 +33,13 @@ async def changeUserPassword(user:user_dependency, db:db_dependency, user_verifi
     user_model.hashed_password = EncryptionContext.hashPassword(user_verification.new_password)
     db.add(user_model)
     db.commit()
+    
+@router.put("/phone", status_code=status.HTTP_202_ACCEPTED):
+async def changeUserPhone(user:user_dependency, db:db_dependency,  newPhoneRequest: PhoneVerification):
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed!')
+    user_model = db.query(UsersModel).filter(UsersModel.id == user.get('id')).first()
+    user_model.phone_number = newPhoneRequest.new_phone
+    db.add(user_model)
+    db.commit()
+    

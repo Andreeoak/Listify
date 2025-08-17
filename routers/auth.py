@@ -32,6 +32,7 @@ async def createUser(db:db_dependency, createUserRequest: UserInterface):
         first_name = createUserRequest.first_name,
         last_name= createUserRequest.last_name,
         role = createUserRequest.role,
+        phone_number = createUserRequest.phone_number,
         hashed_password = EncryptionContext.hashPassword(createUserRequest.password),
         is_active = True
     )

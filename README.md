@@ -108,7 +108,7 @@ uvicorn main:app --reload
 │  ├─ UserInterface.py
 │  ├─ TaskInterface.py
 │  ├─ TokenInterface.py
-│  └─ UserVerificationInterface.py
+│  └─ UserPasswordVerificationInterface.py
 ├─ routers/
 │  ├─ auth.py
 │  ├─ users.py
