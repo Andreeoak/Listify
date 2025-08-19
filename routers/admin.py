@@ -21,7 +21,7 @@ async def getAllTasks(user:user_dependency, db:db_dependency):
 
 
 @router.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def getAllTasks(user:user_dependency, db:db_dependency, todo_id:int = Path(gt=0)):
+async def getTaskById(user:user_dependency, db:db_dependency, todo_id:int = Path(gt=0)):
     if user is None or user.get('user_role')!= 'admin':
         raise HTTPException(status_code=401, detail="Authentication Failed!")
     model = db.query(ToDosModel).filter(ToDosModel.id == todo_id).first()

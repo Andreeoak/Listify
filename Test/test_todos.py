@@ -1,28 +1,9 @@
-from sqlalchemy import text
-from Database.MockDatabase import TestingSessionLocal, engine
+from Database.MockDatabase import TestingSessionLocal
 from fastapi import status
-import pytest
 from Database.Models.ToDosModel import ToDosModel
-from Utils.testsReusables import getTestClient
+from Utils.testsReusables import getTestClient, testTodo
 
 Client = getTestClient()
-
-@pytest.fixture
-def testTodo():
-    todo = ToDosModel(
-        title= "Learn to code!",
-        description= "Need to learn everyday!",
-        priority=5,
-        complete=False,
-        owner_id=1
-    )
-    db = TestingSessionLocal()
-    db.add(todo)
-    db.commit()
-    yield todo
-    with engine.connect() as connection:
-        connection.execute(text("Delete from todos;"))
-        connection.commit()
 
 def testReadAllAuthenticated(testTodo):
     response = Client.get("/Tasks")
