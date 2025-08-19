@@ -1,4 +1,3 @@
-from sqlalchemy import text
 from main import app
 from Database.MockDatabase import override_getDb
 from Utils.encryption import jwtEncryption
