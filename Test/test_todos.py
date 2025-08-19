@@ -52,3 +52,40 @@ def testReadAllAuthenticated(testTodo):
         }
     ]
     
+def testReadTaskById(testTodo):
+    response = Client.get("/Tasks/1")
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {
+            "complete": False,
+            "title": "Learn to code!",
+            "description": "Need to learn everyday!",
+            "id":1,
+            "priority": 5,
+            "owner_id":1
+        }
+    
+
+def testReadTaskByIdNotFound(testTodo):
+    response = Client.get("/Tasks/999")
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {
+            "detail": "Task not found"
+        }
+    
+def testCreateTask():
+    request_data ={
+        "title": "New Todo!",
+        'description': "Todo description",
+        'priority': 5,
+        'complete': False
+    }
+    response = Client.post("/Tasks", json = request_data)
+    assert response.status_code == status.HTTP_201_CREATED
+    
+    db = TestingSessionLocal()
+    model = db.query(ToDosModel).order_by(ToDosModel.id.desc()).first()
+    assert model.title == request_data.get('title')
+    assert model.description == request_data.get('description')
+    assert model.priority == request_data.get('priority')
+    assert model.complete == request_data.get('complete')
+    
