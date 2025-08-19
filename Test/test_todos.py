@@ -89,3 +89,19 @@ def testCreateTask():
     assert model.priority == request_data.get('priority')
     assert model.complete == request_data.get('complete')
     
+    
+def testUpdateTask(testTodo):
+    request_data = {
+        'title': 'Change the title of the todo already saved!',
+        'description': 'Need to learn everyday!',
+        'priority': 5,
+        'complete': False,
+    }
+
+    # URL corrigida
+    response = Client.put("/Tasks/1", json=request_data)
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    db = TestingSessionLocal()
+    model = db.query(ToDosModel).filter(ToDosModel.id == 1).first()
+    assert model.title == request_data['title']
