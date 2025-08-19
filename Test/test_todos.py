@@ -105,3 +105,33 @@ def testUpdateTask(testTodo):
     db = TestingSessionLocal()
     model = db.query(ToDosModel).filter(ToDosModel.id == 1).first()
     assert model.title == request_data['title']
+    
+def testUpdateTaskNotFound(testTodo):
+    request_data = {
+        'title': 'Change the title of the todo already saved!',
+        'description': 'Need to learn everyday!',
+        'priority': 5,
+        'complete': False,
+    }
+
+    # URL corrigida
+    response = Client.put("/Tasks/999", json=request_data)
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {
+            "detail": "Task not found"
+        }
+    
+
+def testDeleteTask(testTodo):
+    response = Client.delete('/Tasks/1')
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    db = TestingSessionLocal()
+    model = db.query(ToDosModel).filter(ToDosModel==1).first()
+    assert model is None
+    
+def testDeleteTaskNotFound(testTodo):
+    response = Client.delete('/Tasks/999')
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {
+            "detail": "Task not found"
+        }
