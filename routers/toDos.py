@@ -8,7 +8,11 @@ from Database.database import getDb
 from Interfaces.TaskInterface import TaskInterface
 from Utils.encryption import jwtEncryption
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/todos",
+    tags=['todos']   
+)
+
 db_dependency = Annotated[Session, Depends(getDb)]
 user_dependency = Annotated[dict, Depends(jwtEncryption.getCurrentUser)]
 

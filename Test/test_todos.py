@@ -6,7 +6,7 @@ from Utils.testsReusables import getTestClient, testTodo
 Client = getTestClient()
 
 def testReadAllAuthenticated(testTodo):
-    response = Client.get("/Tasks")
+    response = Client.get("/todos/Tasks")
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == [
         {
@@ -20,7 +20,7 @@ def testReadAllAuthenticated(testTodo):
     ]
     
 def testReadTaskById(testTodo):
-    response = Client.get("/Tasks/1")
+    response = Client.get("/todos/Tasks/1")
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
             "complete": False,
@@ -33,7 +33,7 @@ def testReadTaskById(testTodo):
     
 
 def testReadTaskByIdNotFound(testTodo):
-    response = Client.get("/Tasks/999")
+    response = Client.get("/todos/Tasks/999")
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {
             "detail": "Task not found"
@@ -46,7 +46,7 @@ def testCreateTask():
         'priority': 5,
         'complete': False
     }
-    response = Client.post("/Tasks", json = request_data)
+    response = Client.post("/todos/Tasks", json = request_data)
     assert response.status_code == status.HTTP_201_CREATED
     
     db = TestingSessionLocal()
@@ -66,7 +66,7 @@ def testUpdateTask(testTodo):
     }
 
     # URL corrigida
-    response = Client.put("/Tasks/1", json=request_data)
+    response = Client.put("/todos/Tasks/1", json=request_data)
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
     db = TestingSessionLocal()
@@ -82,7 +82,7 @@ def testUpdateTaskNotFound(testTodo):
     }
 
     # URL corrigida
-    response = Client.put("/Tasks/999", json=request_data)
+    response = Client.put("/todos/Tasks/999", json=request_data)
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {
             "detail": "Task not found"
@@ -90,14 +90,14 @@ def testUpdateTaskNotFound(testTodo):
     
 
 def testDeleteTask(testTodo):
-    response = Client.delete('/Tasks/1')
+    response = Client.delete('/todos/Tasks/1')
     assert response.status_code == status.HTTP_204_NO_CONTENT
     db = TestingSessionLocal()
     model = db.query(ToDosModel).filter(ToDosModel==1).first()
     assert model is None
     
 def testDeleteTaskNotFound(testTodo):
-    response = Client.delete('/Tasks/999')
+    response = Client.delete('/todos/Tasks/999')
     assert response.status_code == status.HTTP_404_NOT_FOUND
     assert response.json() == {
             "detail": "Task not found"
