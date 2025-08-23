@@ -1,7 +1,7 @@
 from Utils.testsReusables import *
 from Utils.encryption import jwtEncryption
 from routers.auth import authenticate_user
-from fastapi import status
+from fastapi import status, HTTPException
 from datetime import timedelta
 from jose import jwt
 
@@ -45,3 +45,17 @@ async def testGetCurrentUser():
     user = await jwtEncryption.getCurrentUser(token)
     
     assert user == {"username": username, "id": user_id, "user_role": role}
+    
+    
+@pytest.mark.asyncio
+async def testGetCurrentUserMissingPayload():
+    user_id = 4
+    role = 'admin'
+    encode = {"id": user_id, 'role':role}
+    token = jwt.encode(encode, jwtEncryption.SECRET_KEY, jwtEncryption.ALGORITHM)
+    
+    with pytest.raises(HTTPException) as exceptionInfo:
+        user = await jwtEncryption.getCurrentUser(token)
+    
+    assert exceptionInfo.value.status_code == status.HTTP_401_UNAUTHORIZED
+    assert exceptionInfo.value.detail == "Could not verify credentials"
