@@ -1,9 +1,10 @@
 from main import app
 from Database.MockDatabase import override_getDb
-from Utils.encryption import jwtEncryption
+from Utils.encryption import jwtEncryption, EncryptionContext as Encrypt
 from fastapi.testclient import TestClient
 from Database.database import getDb
 from Database.Models.ToDosModel import ToDosModel
+from Database.Models.UsersModel import UsersModel
 from Database.MockDatabase import TestingSessionLocal, engine
 from sqlalchemy import text
 import pytest
@@ -37,6 +38,28 @@ def testTodo():
     yield todo
     with engine.connect() as connection:
         connection.execute(text("Delete from todos;"))
+        connection.commit()
+        
+@pytest.fixture
+def testUser():
+    mock_user = UsersModel(
+        email="charlie@example.com",
+        username="charlie99",
+        first_name="Charlie",
+        last_name="Brown",
+        hashed_password= Encrypt.hashPassword("testPassword"),
+        is_active=True,
+        role="admin",
+        phone_number="+55 21 98888-7777"
+    )
+    db = TestingSessionLocal()
+    db.add(mock_user)
+    db.commit()
+    db.refresh(mock_user)  # refresh to get auto-generated ID
+    yield mock_user
+    with engine.connect() as connection:
+        connection.execute(text("DELETE FROM todos;"))
+        connection.execute(text("DELETE FROM users;"))  # clean up user too
         connection.commit()
 
 
