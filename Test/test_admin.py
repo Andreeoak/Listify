@@ -1,5 +1,6 @@
 from Utils.testsReusables import *
 from fastapi import status
+from Database.Models.ToDosModel import ToDosModel
 
 
 
@@ -25,5 +26,21 @@ def testGetAllTasksForNonAdmin(testTodo):
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {
         'detail': "Authentication Failed!"
+    }
+    
+def testDeleteTaskByID(testTodo):
+    response = Client = getTestClient()
+    response = Client.delete("/admin/todo/1")
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+    db = TestingSessionLocal()
+    model = db.query(ToDosModel).filter(ToDosModel.id == 1).first()
+    assert(model is None)
+    
+def testDeleteTaskByIDNotFOund(testTodo):
+    response = Client = getTestClient()
+    response = Client.delete("/admin/todo/13199")
+    assert response.status_code == status.HTTP_404_NOT_FOUND
+    assert response.json() == {
+        "detail": "No records found with id= 13199"
     }
     
