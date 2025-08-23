@@ -135,7 +135,7 @@ uvicorn main:app --reload
 ## 🤔 Próximos passos
 
 * ~~Implementar **Alembic** para versionamento de banco.~~
-* Adicionar **testes automatizados** com Pytest.
+* ~~Adicionar **testes automatizados** com Pytest.~~
 * Suporte a refresh tokens.
 * Suporte a bancos de dados maiores (PostgreSQL, MySQL).
 
