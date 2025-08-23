@@ -1,6 +1,9 @@
 from Utils.testsReusables import *
+from Utils.encryption import jwtEncryption
 from routers.auth import authenticate_user
 from fastapi import status
+from datetime import timedelta
+from jose import jwt
 
 """
 router = APIRouter(
@@ -8,14 +11,6 @@ prefix='/auth',
 tags=['Auth']
 )
 db_dependency = Annotated[Session, Depends(getDb)]
-
-def authenticate_user(username:str, password:str, db:db_dependency):
-user = db.query(UsersModel).filter(UsersModel.username==username).first()
-if(not user):
-    return False
-if(not EncryptionContext.verifyPassword(password, user.hashed_password)):
-    return False
-return user
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
@@ -63,3 +58,16 @@ def testAuthenticateUserInvalidPassword(testUser):
     authenticatedUser = authenticate_user(testUser.username, "wrongpassword", db)
 
     assert authenticatedUser is False
+    
+def testCreateAccessToken():
+    username = 'testUser'
+    user_id = 4
+    role = 'user'
+    expires_delta = timedelta(days=1)
+    
+    token = jwtEncryption.createAccessToken(username, user_id, role, expires_delta)
+    decoded_token= jwt.decode(token, jwtEncryption.SECRET_KEY, jwtEncryption.ALGORITHM, options={'verify_signature': False})
+    
+    assert decoded_token['sub'] == username
+    assert decoded_token['id']  == user_id
+    assert decoded_token['role']  == role
