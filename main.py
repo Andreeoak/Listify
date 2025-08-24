@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from routers import auth, toDos, admin, users
 from Database.database import engine, Base
 # Importar modelos antes de criar tabelas
@@ -9,6 +10,7 @@ from Database.Models.ToDosModel import ToDosModel
 app = FastAPI()
 Base.metadata.create_all(bind=engine) 
 templates = Jinja2Templates(directory="Templates")
+app.mount("/static", StaticFiles(directory="Templates/Static"), name= "static")
 
 @app.get("/")
 def test(request: Request):
