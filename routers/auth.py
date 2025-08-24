@@ -1,4 +1,5 @@
-from fastapi import  APIRouter, Depends, status, HTTPException
+from fastapi import  APIRouter, Depends, status, HTTPException, Request
+from fastapi.templating import Jinja2Templates
 from Interfaces.UserInterface import UserInterface
 from Interfaces.TokenInterface import TokenInterface
 from Database.Models.UsersModel import UsersModel
@@ -14,6 +15,15 @@ router = APIRouter(
     tags=['Auth']
 )
 db_dependency = Annotated[Session, Depends(getDb)]
+
+templates = Jinja2Templates(directory="Templates")
+### Page Mounting ###
+
+@router.get("/login-page")
+def render_login_page(request:Request):
+    return templates.TemplateResponse("login.html", { "request": request})
+
+### Endpoints ###
 
 def authenticate_user(username:str, password:str, db:db_dependency):
     user = db.query(UsersModel).filter(UsersModel.username==username).first()
