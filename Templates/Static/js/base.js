@@ -172,6 +172,13 @@
             event.preventDefault();
 
             const form = event.target;
+
+            // deixa o navegador mostrar mensagens de erro nativas
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
