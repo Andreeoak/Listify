@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -7,6 +7,10 @@ from Database.Models.ToDosModel import ToDosModel
 from Database.database import getDb
 from Interfaces.TaskInterface import TaskInterface
 from Utils.encryption import jwtEncryption
+from starlette.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
+
+templates = Jinja2Templates(directory="Templates")
 
 router = APIRouter(
     prefix="/todos",
@@ -15,6 +19,25 @@ router = APIRouter(
 
 db_dependency = Annotated[Session, Depends(getDb)]
 user_dependency = Annotated[dict, Depends(jwtEncryption.getCurrentUser)]
+
+def redirect_to_login():
+    redirect_response= RedirectResponse("/auth/login-page", status_code= status.HTTP_302_FOUND)
+    redirect_response.delete_cookie(key="access_token")
+    return redirect_response
+
+### Mounting page
+@router.get("/todo-page")
+async def render_todo_page(request: Request, db: db_dependency):
+    try:
+        user = await jwtEncryption.getCurrentUser(request.cookies.get('access_token'))
+        if user is None:
+            return redirect_to_login()
+        todos = db.query(ToDosModel).filter(ToDosModel.owner_id==user.get("id")).all()
+        return templates.TemplateResponse("todo.html", {"request":request, "todos":todos, "user":user})
+    except:
+        return redirect_to_login()
+
+### Endpoints
 
 @router.get("/", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 async def redirect_to_tasks():
