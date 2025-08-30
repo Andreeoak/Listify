@@ -38,7 +38,7 @@ async def render_todo_page(request: Request, db: db_dependency):
         return redirect_to_login()
     
 @router.get('/add-todo-page')
-async def render_todo_page(request: Request, db:db_dependency):
+async def render_add_todo_page(request: Request, db:db_dependency):
     try:
         user = await jwtEncryption.getCurrentUser(request.cookies.get('access_token'))
         if user is None:
@@ -48,13 +48,13 @@ async def render_todo_page(request: Request, db:db_dependency):
         return redirect_to_login()
     
 @router.get('/edit-todo-page/{todo_id}')
-async def render_todo_page(request: Request, todo_id: int, db:db_dependency):
+async def render_edit_todo_page(request: Request, todo_id: int, db:db_dependency):
     try:
         user = await jwtEncryption.getCurrentUser(request.cookies.get('access_token'))
         if user is None:
             return redirect_to_login()
         todo = db.query(ToDosModel).filter(ToDosModel.id==todo_id).first()
-        return templates.TemplateResponse("add-todo.html", {"request":request, "todo": todo, "user":user})
+        return templates.TemplateResponse("edit-todo.html", {"request":request, "todo": todo, "user":user})
     except:
         return redirect_to_login()
 
